@@ -5,10 +5,8 @@ declare(strict_types=1);
 namespace Tetthys\ActivityLog\DTO;
 
 use Tetthys\ActivityLog\Enum\Channel;
+use Tetthys\ActivityLog\Enum\Sensitivity;
 
-/**
- * Immutable activity event.
- */
 final class Activity
 {
     /**
@@ -17,10 +15,18 @@ final class Activity
     public function __construct(
         public readonly string $id,
         public readonly \DateTimeImmutable $occurredAt,
+
         public readonly string $action,
+        public readonly bool $auditable = true,
+        public readonly Sensitivity $sensitivity = Sensitivity::Normal,
+        public readonly ?string $category = null,
+        public readonly ?string $description = null,
+        public readonly ?int $retentionDays = null,
+
         public readonly ?ActorRef $actor = null,
         public readonly ?SubjectRef $subject = null,
         public readonly array $metadata = [],
+
         public readonly ?string $correlationId = null,
         public readonly ?string $ip = null,
         public readonly ?string $userAgent = null,
@@ -35,10 +41,18 @@ final class Activity
         return [
             'id' => $this->id,
             'occurred_at' => $this->occurredAt->format('c'),
+
             'action' => $this->action,
+            'auditable' => $this->auditable,
+            'sensitivity' => $this->sensitivity->value,
+            'category' => $this->category,
+            'description' => $this->description,
+            'retention_days' => $this->retentionDays,
+
             'actor' => $this->actor?->toArray(),
             'subject' => $this->subject?->toArray(),
             'metadata' => $this->metadata,
+
             'correlation_id' => $this->correlationId,
             'ip' => $this->ip,
             'user_agent' => $this->userAgent,

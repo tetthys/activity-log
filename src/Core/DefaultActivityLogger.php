@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Tetthys\ActivityLog\Core;
 
 use BackedEnum;
+use Tetthys\ActivityLog\Contracts\ActionDefinitionResolver;
 use Tetthys\ActivityLog\Contracts\ActivityEnricher;
 use Tetthys\ActivityLog\Contracts\ActivityLogger;
 use Tetthys\ActivityLog\Contracts\ActivityWriter;
-use Tetthys\ActivityLog\Contracts\ActionNameResolver;
 use Tetthys\ActivityLog\Contracts\Clock;
 use Tetthys\ActivityLog\Contracts\IdGenerator;
 use Tetthys\ActivityLog\Contracts\MetadataSanitizer;
@@ -26,7 +26,7 @@ final class DefaultActivityLogger implements ActivityLogger
         private readonly ActivityWriter $writer,
         private readonly Clock $clock,
         private readonly IdGenerator $ids,
-        private readonly ActionNameResolver $actions,
+        private readonly ActionDefinitionResolver $definitions,
         private readonly MetadataSanitizer $metadata,
         array $enrichers = [],
     ) {
@@ -43,13 +43,28 @@ final class DefaultActivityLogger implements ActivityLogger
         ?string $userAgent = null,
         ?Channel $channel = null,
     ): void {
+        $def = $this->definitions->resolve($action);
+
+        // If not auditable, skip entirely
+        if (!$def->auditable) {
+            return;
+        }
+
         $activity = new Activity(
             id: $this->ids->generate(),
             occurredAt: $this->clock->now(),
-            action: $this->actions->resolve($action),
+
+            action: $def->name,
+            auditable: $def->auditable,
+            sensitivity: $def->sensitivity,
+            category: $def->category,
+            description: $def->description,
+            retentionDays: $def->retentionDays,
+
             actor: $actor,
             subject: $subject,
-            metadata: $this->metadata->sanitize($metadata),
+            metadata: $this->metadata->sanitize($metadata, $def->sensitivity),
+
             correlationId: $correlationId,
             ip: $ip,
             userAgent: $userAgent,
