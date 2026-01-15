@@ -1,14 +1,39 @@
 {
   "name": "tetthys/activity-log",
-  "description": "Framework-agnostic activity log core (PHP 8.x) with Enum/Attribute definitions and counter-backed stats.",
+  "description": "Framework-agnostic activity log core with Enum/Attribute definitions and high-performance counter-backed stats. Optional Laravel 12 integration included.",
   "type": "library",
   "license": "MIT",
+
   "require": {
     "php": "^8.1"
   },
+
+  "require-dev": {
+    "illuminate/support": "^12.0",
+    "illuminate/database": "^12.0",
+    "illuminate/cache": "^12.0"
+  },
+
+  "suggest": {
+    "illuminate/support": "Required for Laravel integration (ServiceProvider, Str, Carbon)",
+    "illuminate/database": "Required for DatabaseActivityWriter and DatabaseCounterStore",
+    "illuminate/cache": "Required for cache-backed idempotency store"
+  },
+
   "autoload": {
     "psr-4": {
       "Tetthys\\ActivityLog\\": "src/"
     }
-  }
+  },
+
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Tetthys\\ActivityLog\\Integration\\Laravel\\LaravelActivityLogServiceProvider"
+      ]
+    }
+  },
+
+  "minimum-stability": "stable",
+  "prefer-stable": true
 }
