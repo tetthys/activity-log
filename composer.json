@@ -1,0 +1,14 @@
+{
+  "name": "tetthys/activity-log",
+  "description": "Framework-agnostic activity log core (PHP 8.x) with Enum/Attribute definitions and counter-backed stats.",
+  "type": "library",
+  "license": "MIT",
+  "require": {
+    "php": "^8.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "Tetthys\\ActivityLog\\": "src/"
+    }
+  }
+}
